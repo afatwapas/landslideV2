@@ -1,18 +1,15 @@
-from sqlalchemy import Column, Integer, Float
-from base import Base             # ✅ import from base.py
+from sqlmodel import SQLModel, Field
 
-class Location(Base):
-    __tablename__ = "location"
-
-    id = Column(Integer, primary_key=True, index=True)
-    lat = Column(Float, nullable=False)
-    lon = Column(Float, nullable=False)
-    lulc = Column(Float)
-    geomorph = Column(Float)
-    plancurv = Column(Float)
-    slop_deg = Column(Float)
-    spi = Column(Float)
-    twi = Column(Float)
-    aspect = Column(Float)
-    flowacc = Column(Float)
-    elevation = Column(Float)
+class Location(SQLModel, table=True):
+    __tablename__ = "locations"  
+    lat: float= Field(default=None, primary_key=True)
+    lon: float
+    elevation: float
+    lulc: int
+    geomorph: int
+    plancurv: float
+    slop_deg: float
+    spi: float
+    twi: float
+    aspect: float
+    flowacc: float

@@ -1,7 +1,11 @@
 fastapi
 uvicorn
+sqlmodel 
+pymysql 
+pandas 
+scikit-learn 
+python-multipart 
+fastapi[all]
+xgboost
 sqlalchemy
 pydantic
-pandas
-sqlmodel
-xgboost

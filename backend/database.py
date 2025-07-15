@@ -1,43 +1,19 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from base import Base              # ✅ from base.py, not models.py
-import pandas as pd
-from models import Location
+import os
+from sqlmodel import create_engine, Session
+from dotenv import load_dotenv
 
-DATABASE_URL = "sqlite:///./data.db"
+load_dotenv()
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
+MYSQL_USER = os.getenv("MYSQL_USER")
+MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
+MYSQL_HOST = os.getenv("MYSQL_HOST")
+MYSQL_PORT = os.getenv("MYSQL_PORT")
+MYSQL_DB = os.getenv("MYSQL_DB")
 
-def create_db_and_tables():
-    from models import Location   # ✅ import here to avoid circular import at top
-    Base.metadata.create_all(bind=engine)
+DATABASE_URL = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
 
-def init_db_from_csv():
-    session = SessionLocal()
-    try:
-        df = pd.read_csv("meghalaya_dem.csv")  # Adjust path
-        for _, row in df.iterrows():
-            if pd.isnull(row["lat"]) or pd.isnull(row["lon"]):
-                continue  # skip rows that violate NOT NULL
-            loc = Location(
-                lat=row["lat"],
-                lon=row["lon"],
-                lulc=row["lulc"],
-                geomorph=row["geomorph"],
-                plancurv=row["plancurv"],
-                slop_deg=row["slop_deg"],
-                spi=row["spi"],
-                twi=row["twi"],
-                aspect=row["aspect"],
-                flowacc=row["flowacc"],
-                elevation=row["elevation"]
-            )
-            session.add(loc)
-        session.commit()
-    except Exception as e:
-        session.rollback()
-        raise e
-    finally:
-        session.close()
+engine = create_engine(DATABASE_URL, echo=False)
 
+def get_session():
+    with Session(engine) as session:
+        yield session
